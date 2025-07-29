@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: dialogflow-webhook
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python app.py
+    envVars:
+      - key: OPENAI_API_KEY
+        value: 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
