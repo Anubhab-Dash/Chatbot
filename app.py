@@ -1,4 +1,4 @@
-pip install flask openai
+
 from flask import Flask, request, jsonify
 import openai
 
