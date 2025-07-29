@@ -4,16 +4,20 @@ import os
 
 app = Flask(__name__)
 
-# Get your OpenAI key from environment variable
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
     try:
         req = request.get_json(force=True)
-        user_query = req.get("queryResult", {}).get("queryText", "")
+        print("📥 Incoming JSON:", req)
 
-        # Call OpenAI GPT
+        user_query = req.get("queryResult", {}).get("queryText", "")
+        print("💬 User said:", user_query)
+
+        if not user_query:
+            raise ValueError("No 'queryText' in the request.")
+
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -22,12 +26,13 @@ def webhook():
             ]
         )
         reply = response.choices[0].message.content.strip()
+        print("🤖 GPT replied:", reply)
 
         return jsonify({"fulfillmentText": reply})
 
     except Exception as e:
-        print("Error:", e)
-        return jsonify({"fulfillmentText": "⚠️ Sorry, something went wrong."})
+        print("❌ ERROR:", e)
+        return jsonify({"fulfillmentText": f"⚠️ Webhook error: {str(e)}"})
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
